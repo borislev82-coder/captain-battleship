@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Судовой Стол Капитана — Морской Бой</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/battleship.css">
+</head>
+<body class="theme-shanty">
+  <!-- Живой фон моря и освещения стола капитана -->
+  <div class="ocean-backdrop" aria-hidden="true">
+    <div class="ocean-waves"></div>
+    <div class="candle-glow"></div>
+  </div>
+
+  <!-- Звуковой движок: автовоспроизведение треков под стиль + синтез морских звуков -->
+  <audio id="audio-shanty" src="assets/tracks/shanty-pirate.mp3" loop preload="auto"></audio>
+  <audio id="audio-night" src="assets/tracks/night-candle-helm.mp3" loop preload="auto"></audio>
+
+  <div class="captain-desk">
+    <!-- Верхняя панель штурманского стола -->
+    <header id="top-bar" class="top-bar" hidden>
+      <div class="brand-seal">
+        <span class="compass-icon">🧭</span>
+        <div>
+          <div class="brand-title">ЖУРНАЛ КАПИТАНА</div>
+          <div class="brand-sub">Морской поход • 2 игрока</div>
+        </div>
+      </div>
+
+      <div class="desk-controls">
+        <div id="style-pill" class="style-pill" title="Текущий стиль стола и подбор соперника">
+          <span id="style-pill-icon">🏴‍☠️</span>
+          <span id="style-pill-text">Весёлый пиратский поход</span>
+        </div>
+
+        <button id="btn-audio-toggle" class="btn-brass btn-small" type="button" title="Включить или приглушить звук">
+          🔊 <span id="audio-status-label">Звук вкл</span>
+        </button>
+
+        <div class="captain-badge">
+          <span>Шкипер: <strong id="display-nickname">—</strong></span>
+          <button id="btn-change-nick" class="btn-brass btn-small" type="button">Сменить</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ЭКРАН 1: Вход на палубу -->
+    <section id="screen-start" class="screen active">
+      <div class="parchment-sheet center-sheet">
+        <div class="wax-seal">⚓</div>
+        <p class="eyebrow">СУДОВОЙ ПОРТАЛ</p>
+        <h1>Стол Пиратского Капитана</h1>
+        <p class="lead">
+          Разверните морскую карту, выберите настроение похода и сойдитесь в дуэли с другим капитаном.
+        </p>
+        <button id="btn-to-access" class="btn-wax btn-large" type="button">ИГРАТЬ</button>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 2: Шифр доступа -->
+    <section id="screen-access" class="screen" hidden>
+      <div class="parchment-sheet center-sheet">
+        <p class="eyebrow">ПАРОЛЬ ВАХТЫ</p>
+        <h2>Код доступа на борт</h2>
+        <p class="lead">Назовите шифр вахтенному (по умолчанию: <code>1234</code>)</p>
+        <input type="password" id="input-access-code" class="ink-input" placeholder="Введите шифр..." maxlength="12" autocomplete="off">
+        <p id="access-error" class="ink-error" hidden>Чернила дрогнули — шифр неверный.</p>
+        <button id="btn-verify-code" class="btn-wax" type="button">Подняться на борт</button>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 3: Выбор игры на столе -->
+    <section id="screen-games" class="screen" hidden>
+      <div class="parchment-sheet catalog-sheet">
+        <p class="eyebrow">КАРТЫ И ПОХОДЫ</p>
+        <h2>Выберите игру на столе</h2>
+        <div class="games-grid">
+          <div class="game-card active-game" id="select-battleship" role="button" tabindex="0">
+            <div class="game-emblem">🏴‍☠️</div>
+            <h3>Морской Бой</h3>
+            <p>
+              Настоящая дуэль флотов на пожелтевшей карте: расстановка и поворот кораблей, пометки пером,
+              4 уровня сложности и два настроения моря.
+            </p>
+            <span class="stamp stamp-ready">Развернуть карту</span>
+          </div>
+          <div class="game-card locked-game" aria-disabled="true">
+            <div class="game-emblem">🗺️</div>
+            <h3>Следующий поход</h3>
+            <p>Новые настольные и морские дуэли готовятся в трюме.</p>
+            <span class="stamp stamp-soon">Скоро</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 4: Лобби капитана (Ник, Стиль + авто-музыка, Уровень сложности, Код комнаты) -->
+    <section id="screen-lobby" class="screen" hidden>
+      <div class="parchment-sheet lobby-sheet">
+        <button id="btn-back-to-games" class="btn-ink-link" type="button">← Назад к выбору игр</button>
+        <p class="eyebrow">ПРИГОТОВЛЕНИЯ К ВЫХОДУ В МОРЕ</p>
+        <h2>Судовой журнал: Морской Бой</h2>
+
+        <!-- Ник капитана -->
+        <div id="nick-setup-block" class="form-block">
+          <label for="input-nickname">Имя капитана (сохраняется в журнале автоматически):</label>
+          <div class="inline-row">
+            <input type="text" id="input-nickname" class="ink-input" placeholder="Например: Одноглазый Джек" maxlength="18">
+            <button id="btn-save-nick" class="btn-brass" type="button">Вписать имя</button>
+          </div>
+        </div>
+
+        <!-- Выбор стиля / атмосферы (сразу меняет стол и включает соответствующий трек!) -->
+        <div class="form-block">
+          <label>Стиль стола и настроение моря (подбор идёт среди игроков того же стиля):</label>
+          <div class="style-grid" id="style-selector">
+            <button class="style-card active" data-style="shanty" type="button">
+              <span class="style-icon">🍻</span>
+              <span class="style-title">Весёлый пиратский поход</span>
+              <span class="style-desc">Живой ритм шанти, солнечный бриз, задорные пометки на карте.</span>
+            </button>
+            <button class="style-card" data-style="night_candle" type="button">
+              <span class="style-icon">🕯️</span>
+              <span class="style-title">Тёмная ночь, свеча у руля</span>
+              <span class="style-desc">Глубокая полночь, мерцание свечи у штурвала, таинственные волны.</span>
+            </button>
+          </div>
+          <small class="ink-hint">
+            Выбранный стиль сразу задаёт облик стола и автоматически запускает соответствующую мелодию.
+          </small>
+        </div>
+
+        <!-- Уровень сложности -->
+        <div class="form-block">
+          <label>Уровень сложности (акватория и состав флота):</label>
+          <div class="difficulty-grid" id="difficulty-selector">
+            <button class="diff-btn" data-diff="easy" type="button">
+              <strong>Лёгкий</strong>
+              <span>Поле 8×8 • Малый флот</span>
+            </button>
+            <button class="diff-btn active" data-diff="medium" type="button">
+              <strong>Средний</strong>
+              <span>Поле 10×10 • Классика</span>
+            </button>
+            <button class="diff-btn" data-diff="hard" type="button">
+              <strong>Сложный</strong>
+              <span>Поле 12×12 • Авианосцы</span>
+            </button>
+            <button class="diff-btn" data-diff="pro" type="button">
+              <strong>Профи</strong>
+              <span>Поле 12×12 • Без авто-обводки</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Код комнаты -->
+        <div class="form-block">
+          <label for="input-room-code">Код комнаты для игры на двоих:</label>
+          <div class="inline-row">
+            <input type="text" id="input-room-code" class="ink-input" placeholder="Например: TORTUGA" maxlength="12">
+            <button id="btn-gen-room" class="btn-brass" type="button" title="Сгенерировать код">🎲 Код</button>
+          </div>
+          <small class="ink-hint">
+            Откройте вторую вкладку с тем же адресом или передайте код другу. Соперник с таким же кодом и стилем войдёт в бой.
+          </small>
+        </div>
+
+        <p id="lobby-error" class="ink-error" hidden></p>
+        <button id="btn-join-room" class="btn-wax btn-large" type="button">Отплыть в комнату</button>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 5: Рабочий стол капитана во время расстановки и боя -->
+    <section id="screen-game" class="screen" hidden>
+      <!-- Лента судового журнала над картами -->
+      <div class="log-strip">
+        <div class="log-meta">
+          <span>Комната: <strong id="game-room-id">—</strong></span>
+          <span class="sep">•</span>
+          <span>Стиль: <strong id="game-style-name">—</strong></span>
+          <span class="sep">•</span>
+          <span>Режим: <strong id="game-diff-name">—</strong></span>
+        </div>
+
+        <div id="game-status-banner" class="captain-note">Капитан готовит карты...</div>
+
+        <button id="btn-leave-game" class="btn-danger-ink btn-small" type="button">Свернуть карту</button>
+      </div>
+
+      <!-- ФАЗА 1: Расстановка флота на карте -->
+      <div id="phase-setup" class="phase-layout">
+        <aside class="parchment-sheet setup-panel">
+          <p class="eyebrow">РАСПОРЯЖЕНИЕ КАПИТАНА</p>
+          <h3>Ваш флот</h3>
+          <p class="ink-hint">
+            Выберите судно, нажмите <b>R</b> (или кнопку ниже) для поворота и поставьте его на пергамент.
+          </p>
+
+          <div class="action-stack">
+            <button id="btn-rotate-ship" class="btn-brass" type="button">
+              ↻ Повернуть (R): <span id="orientation-label">Горизонтально</span>
+            </button>
+            <button id="btn-random-fleet" class="btn-brass" type="button">🧭 Расставить наугад</button>
+            <button id="btn-clear-fleet" class="btn-brass" type="button">🧹 Стереть пометки</button>
+          </div>
+
+          <div id="ship-dock" class="ship-dock"></div>
+
+          <button id="btn-ready-battle" class="btn-wax btn-large" type="button" disabled>
+            Поднять паруса к бою!
+          </button>
+        </aside>
+
+        <div class="chart-frame">
+          <div class="chart-header">
+            <span class="chart-tag">ВАША КАРТА</span>
+            <h4 id="setup-player-name">Капитан</h4>
+          </div>
+          <div id="setup-board" class="naval-board"></div>
+        </div>
+      </div>
+
+      <!-- ФАЗА 2: Морской бой на двух картах -->
+      <div id="phase-battle" class="phase-layout battle-layout" hidden>
+        <div class="chart-frame">
+          <div class="chart-header">
+            <span class="chart-tag">СВОЙ ФЛОТ</span>
+            <h4 id="battle-my-name">Капитан</h4>
+          </div>
+          <div id="my-battle-board" class="naval-board readonly"></div>
+        </div>
+
+        <div class="chart-frame">
+          <div class="chart-header">
+            <span class="chart-tag enemy-tag">ВРАЖЕСКИЕ ВОДЫ</span>
+            <h4 id="battle-enemy-name">Соперник</h4>
+          </div>
+          <div id="enemy-battle-board" class="naval-board targetable"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
