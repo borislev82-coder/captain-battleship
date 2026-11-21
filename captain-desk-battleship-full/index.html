@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Captain Battleship — Стол Капитана</title>
+  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/battleship.css" />
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body class="theme-shanty">
+  <header id="top-bar" class="top-bar" hidden>
+    <div class="top-bar__left">
+      <span class="captain-badge">⚓ Капитан: <strong id="display-nickname"></strong></span>
+      <span class="style-pill">
+        <span id="style-pill-icon">🏴‍☠️</span>
+        <span id="style-pill-text">Шанти</span>
+      </span>
+    </div>
+    <div class="top-bar__right">
+      <button id="btn-audio-toggle" class="btn btn-ghost" type="button">🔊 <span id="audio-status-label">Звук вкл</span></button>
+    </div>
+  </header>
+
+  <main class="desk-wrapper">
+    <!-- Экран 1: Вход -->
+    <section id="screen-start" class="screen card">
+      <div class="crest">🧭</div>
+      <h1>Стол Капитана</h1>
+      <p class="subtitle">Морские баталии, навигационные карты и судовой журнал</p>
+      <button id="btn-to-access" class="btn btn-primary" type="button">Войти в каюту</button>
+    </section>
+
+    <!-- Экран 2: Шифр доступа -->
+    <section id="screen-access" class="screen card" hidden>
+      <h2>Шифр доступа</h2>
+      <p class="subtitle">Введите код допуска к капитанскому столу (по умолчанию: 1234)</p>
+      <div class="form-row">
+        <input id="input-access-code" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off" />
+        <button id="btn-verify-code" class="btn btn-primary" type="button">Открыть</button>
+      </div>
+      <p id="access-error" class="error-msg" hidden>Неверный шифр доступа. Попробуйте ещё раз.</p>
+    </section>
+
+    <!-- Экран 3: Выбор игры -->
+    <section id="screen-games" class="screen card" hidden>
+      <h2>Судовые игры</h2>
+      <p class="subtitle">Выберите настольную партию</p>
+      <div id="select-battleship" class="game-tile" tabindex="0" role="button">
+        <div class="game-tile__icon">⚓</div>
+        <div class="game-tile__body">
+          <h3>Морской Бой</h3>
+          <p>Классическая эскадра 10×10: сетевой бой по коду комнаты или битва против Адмирала-бота</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Экран 4: Лобби -->
+    <section id="screen-lobby" class="screen card" hidden>
+      <div class="screen-header">
+        <button id="btn-back-to-games" class="btn btn-ghost" type="button">← К играм</button>
+        <h2>Подготовка к походу</h2>
+      </div>
+
+      <div class="lobby-section">
+        <label class="section-label">Имя капитана</label>
+        <div id="nick-setup-block" class="form-row">
+          <input id="input-nickname" type="text" maxlength="24" placeholder="Например, Капитан Флинт" />
+          <button id="btn-save-nick" class="btn btn-secondary" type="button">Записать</button>
+        </div>
+        <div class="nick-actions">
+          <button id="btn-change-nick" class="btn btn-link" type="button">Сменить имя</button>
+        </div>
+      </div>
+
+      <div class="lobby-section">
+        <label class="section-label">Атмосфера каюты и музыка</label>
+        <div class="style-grid">
+          <button class="style-card active" data-style="shanty" type="button">
+            <span>🏴‍☠️</span>
+            <strong>Морское шанти</strong>
+            <small>Бодрый ветер и волны</small>
+          </button>
+          <button class="style-card" data-style="night_candle" type="button">
+            <span>🕯️</span>
+            <strong>Ночная свеча</strong>
+            <small>Тихий штиль и скрипка</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="lobby-section">
+        <label class="section-label">Уровень бота (если играете без соперника)</label>
+        <div class="diff-grid">
+          <button class="diff-btn" data-diff="easy" type="button">Юнга</button>
+          <button class="diff-btn active" data-diff="medium" type="button">Боцман</button>
+          <button class="diff-btn" data-diff="hard" type="button">Адмирал</button>
+        </div>
+      </div>
+
+      <div class="lobby-section">
+        <label class="section-label" for="input-room-code">Код комнаты (для игры вдвоём с разных устройств)</label>
+        <div class="form-row">
+          <input id="input-room-code" type="text" maxlength="10" placeholder="Введите общий код" />
+          <button id="btn-gen-room" class="btn btn-secondary" type="button">🎲 Код</button>
+        </div>
+        <button id="btn-join-room" class="btn btn-primary btn-wide" type="button">Войти в комнату</button>
+      </div>
+
+      <p id="lobby-error" class="error-msg" hidden></p>
+    </section>
+
+    <!-- Экран 5: Игровой стол -->
+    <section id="screen-game" class="screen game-screen" hidden>
+      <div id="battleship-root"></div>
+    </section>
+  </main>
+</body>
+</html>
