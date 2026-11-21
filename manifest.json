@@ -1,0 +1,11 @@
+{
+  "name": "Captain Battleship — Стол Капитана",
+  "short_name": "Captain Battleship",
+  "description": "Морские баталии 10x10 с циклом смены суток и звуковым сопровождением",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0c1118",
+  "theme_color": "#2a1912",
+  "lang": "ru",
+  "icons": []
+}
