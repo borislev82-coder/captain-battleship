@@ -1,0 +1,12 @@
+{
+  "name": "captain-battleship",
+  "version": "17.1.0",
+  "private": true,
+  "description": "Captain Battleship",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
